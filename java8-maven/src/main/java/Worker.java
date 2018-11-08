@@ -8,7 +8,7 @@ public class Worker {
 
   public static void main(String[] argv) throws Exception {
     ConnectionFactory factory = new ConnectionFactory();
-    factory.setHost("localhost");
+    factory.setHost("52.221.180.102");
     final Connection connection = factory.newConnection();
     final Channel channel = connection.createChannel();
 

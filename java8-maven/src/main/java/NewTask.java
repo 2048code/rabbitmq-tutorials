@@ -12,7 +12,7 @@ public class NewTask {
 
     public static void main(String[] argv) throws Exception {
         ConnectionFactory factory = new ConnectionFactory();
-        factory.setHost("localhost");
+        factory.setHost("52.221.180.102");
         try (Connection connection = factory.newConnection();
              Channel channel = connection.createChannel()) {
 
@@ -29,7 +29,7 @@ public class NewTask {
 
     private static String getMessage(String[] strings) {
         if (strings.length < 1)
-            return "Hello World!";
+            return "Hello World!---1";
         return String.join(" ", strings);
     }
 

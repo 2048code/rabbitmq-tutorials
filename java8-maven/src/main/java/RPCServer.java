@@ -11,7 +11,7 @@ import java.util.concurrent.TimeoutException;
 
 public class RPCServer {
 
-    private static final String RPC_QUEUE_NAME = "rpc_queue";
+    private static final String RPC_QUEUE_NAME = "rpc_queue2";
 
     private static int fib(int n) {
         if (n == 0) return 0;
@@ -21,8 +21,10 @@ public class RPCServer {
 
     public static void main(String[] argv) {
         ConnectionFactory factory = new ConnectionFactory();
-        factory.setHost("localhost");
-
+        factory.setHost("52.221.180.102");
+        factory.setPort(5672);
+        factory.setUsername("admin");
+        factory.setPassword("rabbit@admin123");
 
         try (Connection connection = factory.newConnection();
              Channel channel = connection.createChannel()) {
@@ -41,7 +43,7 @@ public class RPCServer {
                             .correlationId(properties.getCorrelationId())
                             .build();
 
-                    String response = "";
+                    String response = "aaaa";
 
                     try {
                         String message = new String(body, "UTF-8");
@@ -50,8 +52,14 @@ public class RPCServer {
                         System.out.println(" [.] fib(" + message + ")");
                         response += fib(n);
                     } catch (RuntimeException e) {
-                        System.out.println(" [.] " + e.toString());
+                        System.out.println(" [.RuntimeException] " + e.toString());
                     } finally {
+                        try {
+                            Thread.sleep(5000);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        System.out.println("basicPublish");
                         channel.basicPublish("", properties.getReplyTo(), replyProps, response.getBytes("UTF-8"));
                         channel.basicAck(envelope.getDeliveryTag(), false);
                         // RabbitMq consumer worker thread notifies the RPC server owner thread
