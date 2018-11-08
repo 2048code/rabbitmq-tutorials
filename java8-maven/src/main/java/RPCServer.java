@@ -28,13 +28,15 @@ public class RPCServer {
 
         try (Connection connection = factory.newConnection();
              Channel channel = connection.createChannel()) {
-
+            // 声明一个队列
+            // 队列名称，持久化，是否独占队列，当所有消费者客户端断开时是否自动删除队列
             channel.queueDeclare(RPC_QUEUE_NAME, false, false, false, null);
-
+            //每次从队列获取的数量
             channel.basicQos(1);
 
             System.out.println(" [x] Awaiting RPC requests");
-
+            // DefaultConsumer类实现了Consumer接口，通过传入一个频道，
+            // 如果频道有消息，就会执行回调的handleDelivery
             Consumer consumer = new DefaultConsumer(channel) {
                 @Override
                 public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException {
@@ -60,6 +62,8 @@ public class RPCServer {
                             e.printStackTrace();
                         }
                         System.out.println("basicPublish");
+                        // 发送消息到队列中
+                        // 交换机名称 队列映射的路由key，消息其他属性，数据
                         channel.basicPublish("", properties.getReplyTo(), replyProps, response.getBytes("UTF-8"));
                         channel.basicAck(envelope.getDeliveryTag(), false);
                         // RabbitMq consumer worker thread notifies the RPC server owner thread
@@ -69,7 +73,8 @@ public class RPCServer {
                     }
                 }
             };
-
+            // 消息消费完成确认
+            // 自动回复队列应答 -- RabbitMQ中的消息确认机制
             channel.basicConsume(RPC_QUEUE_NAME, false, consumer);
             // Wait and be prepared to consume the message from RPC client.
             while (true) {

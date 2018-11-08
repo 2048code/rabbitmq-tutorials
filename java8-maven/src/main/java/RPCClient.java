@@ -56,7 +56,6 @@ public class RPCClient implements AutoCloseable {
             }
         };
         channel.basicConsume(replyQueueName, true, consumer);
-
         return response.take();
     }
 
